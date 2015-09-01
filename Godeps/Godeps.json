@@ -12,6 +12,14 @@
 			"Rev": "8aec3b1765cee785e40c3e9157c2aff62eb3fe6e"
 		},
 		{
+			"ImportPath": "github.com/dustin/go-humanize",
+			"Rev": "c20a8bde38c8f5ba06f6600edf473705c96829d1"
+		},
+		{
+			"ImportPath": "github.com/gizak/termui",
+			"Rev": "f9b03512858269e8bfc1c57b12113673ef213dc3"
+		},
+		{
 			"ImportPath": "github.com/inconshreveable/mousetrap",
 			"Rev": "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
 		},
@@ -39,6 +47,11 @@
 			"Rev": "337395e44efb4affc8bf11971e22acbd4e27a32d"
 		},
 		{
+			"ImportPath": "github.com/mattn/go-runewidth",
+			"Comment": "travisish-37-g12e0ff7",
+			"Rev": "12e0ff74603c9a3209d8bf84f8ab349fe1ad9477"
+		},
+		{
 			"ImportPath": "github.com/mattn/go-sqlite3",
 			"Comment": "v1.0.0-4-g3dc190a",
 			"Rev": "3dc190a01779c7f35c9748dd14aba234fcf48a33"
@@ -46,6 +59,10 @@
 		{
 			"ImportPath": "github.com/mitchellh/mapstructure",
 			"Rev": "281073eb9eb092240d33ef253c404f1cca550309"
+		},
+		{
+			"ImportPath": "github.com/nsf/termbox-go",
+			"Rev": "347ab0bc907040257edaf8b580f729e12c93ab6b"
 		},
 		{
 			"ImportPath": "github.com/qor/inflection",

@@ -5,9 +5,11 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/caarlos0/gohome"
+	"github.com/dustin/go-humanize"
 	"github.com/jinzhu/gorm"
 	// required by gorm
 	_ "github.com/mattn/go-sqlite3"
@@ -18,6 +20,10 @@ type Datastore interface {
 	AddArtist(name string)
 	AddTrack(artist, album, title string, date time.Time)
 	FindLastListen() (int64, error)
+	RecentTracks() string
+	Scrobbles() string
+	TopArtists() string
+	TopAlbums() string
 }
 
 // DB struct
@@ -150,6 +156,116 @@ func (db *DB) NewRec(table, field, data string) bool {
 	}
 
 	return false
+}
+
+func (db *DB) RecentTracks() (s string) {
+	var (
+		title  string
+		artist string
+		date   time.Time
+	)
+
+	rows, err := db.Table("tracks").
+		Select("title, artist, date").
+		Order("id desc").
+		Limit(5).
+		Rows()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	var str []string
+	for rows.Next() {
+		rows.Scan(&title, &artist, &date)
+		t, err := time.Parse("2006-01-02 15:04:05 -0700 UTC", date.String())
+		if err != nil {
+			log.Fatalf("Could not parse date: %s\n", err)
+		}
+		d := humanize.Time(t)
+		str = append(str, fmt.Sprintf("%s - %s %s", title, artist, d))
+	}
+	return strings.Join(str, "\n")
+}
+
+func (db *DB) Scrobbles() (s string) {
+	var (
+		scrobblesCount int64
+		artistsCount   int64
+	)
+
+	scrobbles := db.Table("tracks").Count(&scrobblesCount).Row()
+	scrobbles.Scan(&scrobblesCount)
+
+	artists := db.Table("artists").Count(&artistsCount)
+	artists.Scan(&artistsCount)
+
+	s = fmt.Sprintf("Scrobbles: %s\tArtists: %s", humanize.Comma(scrobblesCount), humanize.Comma(artistsCount))
+	return s
+
+}
+
+func (db *DB) TopArtists() (s string) {
+	type Result struct {
+		Artist string
+		Plays  int
+	}
+
+	rows, err := db.Raw("SELECT artist, COUNT(artist) AS plays FROM tracks GROUP BY artist ORDER BY COUNT(artist) DESC LIMIT 5;").Rows()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer rows.Close()
+
+	plays := make([]*Result, 0)
+	for rows.Next() {
+		play := new(Result)
+		err := rows.Scan(&play.Artist, &play.Plays)
+		if err != nil {
+			log.Fatal(err)
+		}
+		plays = append(plays, play)
+	}
+
+	var str []string
+	for _, p := range plays {
+		str = append(str, fmt.Sprintf("%s (%d plays)", p.Artist, p.Plays))
+	}
+
+	return strings.Join(str, "\n")
+}
+
+func (db *DB) TopAlbums() (s string) {
+	type Result struct {
+		Artist string
+		Album  string
+		Plays  int
+	}
+
+	rows, err := db.Raw("SELECT artist, album, COUNT(album) AS plays FROM tracks GROUP BY album, artist ORDER BY COUNT(album) DESC LIMIT 5;").Rows()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer rows.Close()
+
+	plays := make([]*Result, 0)
+	for rows.Next() {
+		play := new(Result)
+		err := rows.Scan(&play.Artist, &play.Album, &play.Plays)
+		if err != nil {
+			log.Fatal(err)
+		}
+		plays = append(plays, play)
+	}
+
+	var str []string
+	for _, p := range plays {
+		str = append(str, fmt.Sprintf("%s - %s (%d plays)", p.Artist, p.Album, p.Plays))
+	}
+
+	return strings.Join(str, "\n")
 }
 
 func isADate(date string) bool {

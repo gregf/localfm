@@ -49,10 +49,17 @@ func Execute() {
 		Run:   env.Daemon,
 	}
 
+	var cmdStats = &cobra.Command{
+		Use:   "stats",
+		Short: "Display statistics about your LocalFM data",
+		Run:   env.Stats,
+	}
+
 	var rootCmd = &cobra.Command{Use: "localfm"}
 	rootCmd.AddCommand(
 		cmdImport,
 		cmdDaemon,
+		cmdStats,
 		cmdVersion)
 	rootCmd.Execute()
 }
