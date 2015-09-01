@@ -11,6 +11,7 @@ import (
 	"github.com/caarlos0/gohome"
 	"github.com/dustin/go-humanize"
 	"github.com/jinzhu/gorm"
+	"github.com/spf13/viper"
 	// required by gorm
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -24,6 +25,7 @@ type Datastore interface {
 	Scrobbles() string
 	TopArtists() string
 	TopAlbums() string
+	TopSongs() string
 }
 
 // DB struct
@@ -168,7 +170,7 @@ func (db *DB) RecentTracks() (s string) {
 	rows, err := db.Table("tracks").
 		Select("title, artist, date").
 		Order("id desc").
-		Limit(5).
+		Limit(10).
 		Rows()
 	if err != nil {
 		log.Fatal(err)
@@ -192,6 +194,7 @@ func (db *DB) Scrobbles() (s string) {
 	var (
 		scrobblesCount int64
 		artistsCount   int64
+		date           time.Time
 	)
 
 	scrobbles := db.Table("tracks").Count(&scrobblesCount).Row()
@@ -200,7 +203,16 @@ func (db *DB) Scrobbles() (s string) {
 	artists := db.Table("artists").Count(&artistsCount)
 	artists.Scan(&artistsCount)
 
-	s = fmt.Sprintf("Scrobbles: %s\tArtists: %s", humanize.Comma(scrobblesCount), humanize.Comma(artistsCount))
+	since := db.Table("tracks").Select("date").Order("date asc").Limit(1).Row()
+	since.Scan(&date)
+
+	d := date.Format("02 Jan 2006")
+
+	s = fmt.Sprintf("%s     Scrobbles: %s     Artists: %s     Since: %s",
+		viper.GetString("main.lastfm_username"),
+		humanize.Comma(scrobblesCount),
+		humanize.Comma(artistsCount),
+		d)
 	return s
 
 }
@@ -263,6 +275,38 @@ func (db *DB) TopAlbums() (s string) {
 	var str []string
 	for _, p := range plays {
 		str = append(str, fmt.Sprintf("%s - %s (%d plays)", p.Artist, p.Album, p.Plays))
+	}
+
+	return strings.Join(str, "\n")
+}
+
+func (db *DB) TopSongs() (s string) {
+	type Result struct {
+		Artist string
+		Title  string
+		Plays  int
+	}
+
+	rows, err := db.Raw("SELECT artist, title, COUNT(title) AS plays FROM tracks GROUP BY artist, title ORDER BY COUNT(title) DESC LIMIT 10;").Rows()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer rows.Close()
+
+	plays := make([]*Result, 0)
+	for rows.Next() {
+		play := new(Result)
+		err := rows.Scan(&play.Artist, &play.Title, &play.Plays)
+		if err != nil {
+			log.Fatal(err)
+		}
+		plays = append(plays, play)
+	}
+
+	var str []string
+	for _, p := range plays {
+		str = append(str, fmt.Sprintf("%s - %s (%d plays)", p.Artist, p.Title, p.Plays))
 	}
 
 	return strings.Join(str, "\n")

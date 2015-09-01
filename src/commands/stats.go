@@ -22,7 +22,7 @@ func (env *Env) Stats(cmd *cobra.Command, args []string) {
 
 	rec := ui.NewPar(env.db.RecentTracks())
 	rec.Border.Label = "Recent Tracks"
-	rec.Height = 7
+	rec.Height = 12
 
 	topart := ui.NewPar(env.db.TopArtists())
 	topart.Border.Label = "Top Artists"
@@ -32,6 +32,10 @@ func (env *Env) Stats(cmd *cobra.Command, args []string) {
 	topalbs.Border.Label = "Top Albums"
 	topalbs.Height = 7
 
+	topsongs := ui.NewPar(env.db.TopSongs())
+	topsongs.Border.Label = "Top Songs"
+	topsongs.Height = 12
+
 	ui.Body.AddRows(
 		ui.NewRow(
 			ui.NewCol(12, 0, s)),
@@ -39,7 +43,9 @@ func (env *Env) Stats(cmd *cobra.Command, args []string) {
 			ui.NewCol(12, 0, rec)),
 		ui.NewRow(
 			ui.NewCol(6, 0, topart),
-			ui.NewCol(6, 0, topalbs)))
+			ui.NewCol(6, 0, topalbs)),
+		ui.NewRow(
+			ui.NewCol(12, 0, topsongs)))
 
 	ui.Body.Align()
 
