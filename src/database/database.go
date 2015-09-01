@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"time"
@@ -70,7 +71,7 @@ func (db *DB) AddArtist(name string) {
 	artist := Artist{
 		Name: name,
 	}
-	if db.NewRecord(&artist) {
+	if db.NewRec("artists", "name", name) {
 		db.Create(&artist)
 		fmt.Printf("Added New Artist: %s\n", name)
 	}
@@ -98,7 +99,7 @@ func (db *DB) AddTrack(artist, album, title string, date time.Time) {
 		Date:     date,
 	}
 
-	if db.NewRecord(&track) {
+	if db.NewRec("tracks", "date", date.String()) {
 		db.Create(&track)
 		fmt.Printf("Added New Track: %s / %s - %s\n", artist, album, title)
 	}
@@ -120,4 +121,42 @@ func (db *DB) FindLastListen() (int64, error) {
 	}
 
 	return t.UTC().Unix(), nil
+}
+
+func (db *DB) NewRec(table, field, data string) bool {
+	var d string
+	if isADate(data) {
+		t, err := time.Parse("2006-01-02 15:04:05 -0700 UTC", data)
+		if err != nil {
+			log.Fatalf("Problem parsing date: %s", err)
+		}
+		d = t.Format("2006-01-02 15:04:05")
+	}
+
+	var count int
+	f := fmt.Sprintf("%s = ?", field)
+
+	var row *gorm.DB
+	if isADate(data) {
+		row = db.Table(table).Where(f, d).Limit(1).Select(field).Count(&count)
+	} else {
+		row = db.Table(table).Where(f, data).Limit(1).Select(field).Count(&count)
+	}
+
+	row.Scan(&count)
+
+	if count == 0 {
+		return true
+	}
+
+	return false
+}
+
+func isADate(date string) bool {
+	_, err := time.Parse("2006-01-02 15:04:05 -0700 UTC", date)
+	if err != nil {
+		return false
+	}
+
+	return true
 }
