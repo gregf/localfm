@@ -35,14 +35,14 @@ type DB struct {
 
 const appName = "localfm"
 
-// Podcast struct
+// Artist struct
 type Artist struct {
 	ID     int    `sql:"index"`
 	Name   string `sql:"unique_index"`
 	Tracks []Track
 }
 
-// Episode struct
+// Track struct
 type Track struct {
 	ID       int `sql:"index"`
 	ArtistID int
@@ -85,7 +85,7 @@ func (db *DB) AddArtist(name string) {
 	}
 }
 
-// findPodcastID locates podcast ID by rssURL
+// findArtistID by artist name
 func (db *DB) findArtistID(artist string) (artistID int) {
 	row := db.Table("artists").
 		Where("name = ?", artist).
@@ -131,6 +131,7 @@ func (db *DB) FindLastListen() (int64, error) {
 	return t.UTC().Unix(), nil
 }
 
+// NewRec returns a bool depending on whether or not it could find a record
 func (db *DB) NewRec(table, field, data string) bool {
 	var d string
 	if isADate(data) {
@@ -160,6 +161,7 @@ func (db *DB) NewRec(table, field, data string) bool {
 	return false
 }
 
+//RecentTracks returns a string of recently played tracks.
 func (db *DB) RecentTracks() (s string, err error) {
 	var (
 		title  string
@@ -190,6 +192,8 @@ func (db *DB) RecentTracks() (s string, err error) {
 	return strings.Join(str, "\n"), nil
 }
 
+//Scrobbles returns a string with your userrname, number of scrobbles, artists,
+// and your first play date.
 func (db *DB) Scrobbles() (s string) {
 	var (
 		scrobblesCount int64
@@ -217,6 +221,7 @@ func (db *DB) Scrobbles() (s string) {
 
 }
 
+// TopArtists returns a string of your top played artists
 func (db *DB) TopArtists() (s string, err error) {
 	type Result struct {
 		Artist string
@@ -249,6 +254,7 @@ func (db *DB) TopArtists() (s string, err error) {
 	return strings.Join(str, "\n"), nil
 }
 
+// TopAlbums returns a string of your top played albums.
 func (db *DB) TopAlbums() (s string, err error) {
 	type Result struct {
 		Artist string
@@ -282,6 +288,7 @@ func (db *DB) TopAlbums() (s string, err error) {
 	return strings.Join(str, "\n"), nil
 }
 
+// TopSongs returns a string of your top played songs.
 func (db *DB) TopSongs() (s string, err error) {
 	type Result struct {
 		Artist string
@@ -315,6 +322,7 @@ func (db *DB) TopSongs() (s string, err error) {
 	return strings.Join(str, "\n"), nil
 }
 
+// isADate returns a bool depending on whether a string is a date or just a string.
 func isADate(date string) bool {
 	_, err := time.Parse("2006-01-02 15:04:05 -0700 UTC", date)
 	if err != nil {
