@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"log"
 	"time"
 
 	ui "github.com/gizak/termui"
@@ -21,19 +22,35 @@ func (env *Env) Stats(cmd *cobra.Command, args []string) {
 	s.Border.Label = "LocalFM"
 	s.Height = 3
 
-	rec := ui.NewPar(env.db.RecentTracks())
+	recTracks, err := env.db.RecentTracks()
+	if err != nil {
+		log.Fatalf("Error in RecentTracks:", err)
+	}
+	rec := ui.NewPar(recTracks)
 	rec.Border.Label = "Recent Tracks"
 	rec.Height = (viper.GetInt("main.recent_tracks") + 2)
 
-	topart := ui.NewPar(env.db.TopArtists())
+	topArtists, err := env.db.TopArtists()
+	if err != nil {
+		log.Fatalf("Error in TopArtists:", err)
+	}
+	topart := ui.NewPar(topArtists)
 	topart.Border.Label = "Top Artists"
 	topart.Height = (viper.GetInt("main.top_artists") + 2)
 
-	topalbs := ui.NewPar(env.db.TopAlbums())
+	topAlbums, err := env.db.TopAlbums()
+	if err != nil {
+		log.Fatalf("Error in TopAlbums:", err)
+	}
+	topalbs := ui.NewPar(topAlbums)
 	topalbs.Border.Label = "Top Albums"
 	topalbs.Height = (viper.GetInt("main.top_albums") + 2)
 
-	topsongs := ui.NewPar(env.db.TopSongs())
+	topSongs, err := env.db.TopSongs()
+	if err != nil {
+		log.Fatalf("Error in TopSongs:", err)
+	}
+	topsongs := ui.NewPar(topSongs)
 	topsongs.Border.Label = "Top Songs"
 	topsongs.Height = (viper.GetInt("main.top_songs") + 2)
 

@@ -21,11 +21,11 @@ type Datastore interface {
 	AddArtist(name string)
 	AddTrack(artist, album, title string, date time.Time)
 	FindLastListen() (int64, error)
-	RecentTracks() string
+	RecentTracks() (string, error)
 	Scrobbles() string
-	TopArtists() string
-	TopAlbums() string
-	TopSongs() string
+	TopArtists() (string, error)
+	TopAlbums() (string, error)
+	TopSongs() (string, error)
 }
 
 // DB struct
@@ -160,7 +160,7 @@ func (db *DB) NewRec(table, field, data string) bool {
 	return false
 }
 
-func (db *DB) RecentTracks() (s string) {
+func (db *DB) RecentTracks() (s string, err error) {
 	var (
 		title  string
 		artist string
@@ -173,7 +173,7 @@ func (db *DB) RecentTracks() (s string) {
 		Limit(viper.GetInt("main.recent_tracks")).
 		Rows()
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 	defer rows.Close()
 
@@ -182,12 +182,12 @@ func (db *DB) RecentTracks() (s string) {
 		rows.Scan(&title, &artist, &date)
 		t, err := time.Parse("2006-01-02 15:04:05 -0700 UTC", date.String())
 		if err != nil {
-			log.Fatalf("Could not parse date: %s\n", err)
+			return "", err
 		}
 		d := humanize.Time(t)
 		str = append(str, fmt.Sprintf("%s - %s %s", title, artist, d))
 	}
-	return strings.Join(str, "\n")
+	return strings.Join(str, "\n"), nil
 }
 
 func (db *DB) Scrobbles() (s string) {
@@ -217,7 +217,7 @@ func (db *DB) Scrobbles() (s string) {
 
 }
 
-func (db *DB) TopArtists() (s string) {
+func (db *DB) TopArtists() (s string, err error) {
 	type Result struct {
 		Artist string
 		Plays  int
@@ -226,7 +226,7 @@ func (db *DB) TopArtists() (s string) {
 	sql := fmt.Sprintf("SELECT artist, COUNT(artist) AS plays FROM tracks GROUP BY artist ORDER BY COUNT(artist) DESC LIMIT %d;", viper.GetInt("main.top_artists"))
 	rows, err := db.Raw(sql).Rows()
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
 	defer rows.Close()
@@ -236,7 +236,7 @@ func (db *DB) TopArtists() (s string) {
 		play := new(Result)
 		err := rows.Scan(&play.Artist, &play.Plays)
 		if err != nil {
-			log.Fatal(err)
+			return "", err
 		}
 		plays = append(plays, play)
 	}
@@ -246,10 +246,10 @@ func (db *DB) TopArtists() (s string) {
 		str = append(str, fmt.Sprintf("%s (%d plays)", p.Artist, p.Plays))
 	}
 
-	return strings.Join(str, "\n")
+	return strings.Join(str, "\n"), nil
 }
 
-func (db *DB) TopAlbums() (s string) {
+func (db *DB) TopAlbums() (s string, err error) {
 	type Result struct {
 		Artist string
 		Album  string
@@ -259,7 +259,7 @@ func (db *DB) TopAlbums() (s string) {
 	sql := fmt.Sprintf("SELECT artist, album, COUNT(album) AS plays FROM tracks GROUP BY album, artist ORDER BY COUNT(album) DESC LIMIT %d;", viper.GetInt("main.top_albums"))
 	rows, err := db.Raw(sql).Rows()
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
 	defer rows.Close()
@@ -269,7 +269,7 @@ func (db *DB) TopAlbums() (s string) {
 		play := new(Result)
 		err := rows.Scan(&play.Artist, &play.Album, &play.Plays)
 		if err != nil {
-			log.Fatal(err)
+			return "", err
 		}
 		plays = append(plays, play)
 	}
@@ -279,10 +279,10 @@ func (db *DB) TopAlbums() (s string) {
 		str = append(str, fmt.Sprintf("%s - %s (%d plays)", p.Artist, p.Album, p.Plays))
 	}
 
-	return strings.Join(str, "\n")
+	return strings.Join(str, "\n"), nil
 }
 
-func (db *DB) TopSongs() (s string) {
+func (db *DB) TopSongs() (s string, err error) {
 	type Result struct {
 		Artist string
 		Title  string
@@ -292,7 +292,7 @@ func (db *DB) TopSongs() (s string) {
 	sql := fmt.Sprintf("SELECT artist, title, COUNT(title) AS plays FROM tracks GROUP BY artist, title ORDER BY COUNT(title) DESC LIMIT %d;", viper.GetInt("main.top_songs"))
 	rows, err := db.Raw(sql).Rows()
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
 	defer rows.Close()
@@ -302,7 +302,7 @@ func (db *DB) TopSongs() (s string) {
 		play := new(Result)
 		err := rows.Scan(&play.Artist, &play.Title, &play.Plays)
 		if err != nil {
-			log.Fatal(err)
+			return "", err
 		}
 		plays = append(plays, play)
 	}
@@ -312,7 +312,7 @@ func (db *DB) TopSongs() (s string) {
 		str = append(str, fmt.Sprintf("%s - %s (%d plays)", p.Artist, p.Title, p.Plays))
 	}
 
-	return strings.Join(str, "\n")
+	return strings.Join(str, "\n"), nil
 }
 
 func isADate(date string) bool {
