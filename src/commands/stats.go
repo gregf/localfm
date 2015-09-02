@@ -5,6 +5,7 @@ import (
 
 	ui "github.com/gizak/termui"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 func (env *Env) Stats(cmd *cobra.Command, args []string) {
@@ -22,19 +23,19 @@ func (env *Env) Stats(cmd *cobra.Command, args []string) {
 
 	rec := ui.NewPar(env.db.RecentTracks())
 	rec.Border.Label = "Recent Tracks"
-	rec.Height = 12
+	rec.Height = (viper.GetInt("main.recent_tracks") + 2)
 
 	topart := ui.NewPar(env.db.TopArtists())
 	topart.Border.Label = "Top Artists"
-	topart.Height = 7
+	topart.Height = (viper.GetInt("main.top_artists") + 2)
 
 	topalbs := ui.NewPar(env.db.TopAlbums())
 	topalbs.Border.Label = "Top Albums"
-	topalbs.Height = 7
+	topalbs.Height = (viper.GetInt("main.top_albums") + 2)
 
 	topsongs := ui.NewPar(env.db.TopSongs())
 	topsongs.Border.Label = "Top Songs"
-	topsongs.Height = 12
+	topsongs.Height = (viper.GetInt("main.top_songs") + 2)
 
 	ui.Body.AddRows(
 		ui.NewRow(

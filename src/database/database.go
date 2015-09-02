@@ -170,7 +170,7 @@ func (db *DB) RecentTracks() (s string) {
 	rows, err := db.Table("tracks").
 		Select("title, artist, date").
 		Order("id desc").
-		Limit(10).
+		Limit(viper.GetInt("main.recent_tracks")).
 		Rows()
 	if err != nil {
 		log.Fatal(err)
@@ -223,7 +223,8 @@ func (db *DB) TopArtists() (s string) {
 		Plays  int
 	}
 
-	rows, err := db.Raw("SELECT artist, COUNT(artist) AS plays FROM tracks GROUP BY artist ORDER BY COUNT(artist) DESC LIMIT 5;").Rows()
+	sql := fmt.Sprintf("SELECT artist, COUNT(artist) AS plays FROM tracks GROUP BY artist ORDER BY COUNT(artist) DESC LIMIT %d;", viper.GetInt("main.top_artists"))
+	rows, err := db.Raw(sql).Rows()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -255,7 +256,8 @@ func (db *DB) TopAlbums() (s string) {
 		Plays  int
 	}
 
-	rows, err := db.Raw("SELECT artist, album, COUNT(album) AS plays FROM tracks GROUP BY album, artist ORDER BY COUNT(album) DESC LIMIT 5;").Rows()
+	sql := fmt.Sprintf("SELECT artist, album, COUNT(album) AS plays FROM tracks GROUP BY album, artist ORDER BY COUNT(album) DESC LIMIT %d;", viper.GetInt("main.top_albums"))
+	rows, err := db.Raw(sql).Rows()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -287,7 +289,8 @@ func (db *DB) TopSongs() (s string) {
 		Plays  int
 	}
 
-	rows, err := db.Raw("SELECT artist, title, COUNT(title) AS plays FROM tracks GROUP BY artist, title ORDER BY COUNT(title) DESC LIMIT 10;").Rows()
+	sql := fmt.Sprintf("SELECT artist, title, COUNT(title) AS plays FROM tracks GROUP BY artist, title ORDER BY COUNT(title) DESC LIMIT %d;", viper.GetInt("main.top_songs"))
+	rows, err := db.Raw(sql).Rows()
 	if err != nil {
 		log.Fatal(err)
 	}
