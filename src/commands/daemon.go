@@ -14,7 +14,7 @@ import (
 
 func (env *Env) Daemon(cmd *cobra.Command, args []string) {
 	ticker := time.NewTicker(1 * time.Minute)
-	fmt.Println("LocalFM Daemon Started")
+	fmt.Printf("LocalFM Deamon %s Started\n", localFMVersion)
 	for _ = range ticker.C {
 		user := viper.GetString("main.lastfm_username")
 		apiKey := viper.GetString("main.lastfm_apikey")
@@ -30,14 +30,19 @@ func (env *Env) Daemon(cmd *cobra.Command, args []string) {
 		firstPage := 1
 
 		for i := lastPage; i >= firstPage; i-- {
+			client := &http.Client{}
 			url := fmt.Sprintf("%s&api_key=%s&user=%s&page=%d&limit=%d&from=%d", baseURL, apiKey, user, i, limit, epoch)
 
-			resp, err := http.Get(url)
+			req, err := http.NewRequest("GET", url, nil)
 			if err != nil {
-				fmt.Println("Error opening file:", err)
-				return
+				log.Fatal(err)
 			}
-
+			useragent := fmt.Sprintf("LocalFM %s", localFMVersion)
+			req.Header.Add("User-Agent", useragent)
+			resp, err := client.Do(req)
+			if err != nil {
+				log.Fatal(err)
+			}
 			defer resp.Body.Close()
 
 			body, err := ioutil.ReadAll(resp.Body)
@@ -58,6 +63,7 @@ func (env *Env) Daemon(cmd *cobra.Command, args []string) {
 				dt, err := time.Parse("02 Jan 2006, 15:04", t.Date)
 				if err != nil {
 					log.Println("Error parsing time", err)
+					return
 				}
 				env.db.AddArtist(t.Artist)
 				env.db.AddTrack(t.Artist, t.Album, t.Name, dt)
