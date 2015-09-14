@@ -18,8 +18,8 @@ import (
 
 // Datastore interface
 type Datastore interface {
-	AddArtist(name string)
-	AddTrack(artist, album, title string, date time.Time)
+	AddArtist(name string) bool
+	AddTrack(artist, album, title string, date time.Time) bool
 	FindLastListen() (int64, error)
 	RecentTracks() (string, error)
 	Scrobbles() string
@@ -75,14 +75,15 @@ func NewDB() (*DB, error) {
 }
 
 // AddArtist Inserts a new artist into the database
-func (db *DB) AddArtist(name string) {
+func (db *DB) AddArtist(name string) bool {
 	artist := Artist{
 		Name: name,
 	}
 	if db.NewRec("artists", "name", name) {
 		db.Create(&artist)
-		fmt.Printf("Added New Artist: %s\n", name)
+		return true
 	}
+	return false
 }
 
 // findArtistID by artist name
@@ -96,7 +97,7 @@ func (db *DB) findArtistID(artist string) (artistID int) {
 }
 
 // AddTrack inserts a track into the database
-func (db *DB) AddTrack(artist, album, title string, date time.Time) {
+func (db *DB) AddTrack(artist, album, title string, date time.Time) bool {
 	artistID := db.findArtistID(artist)
 
 	track := Track{
@@ -109,8 +110,9 @@ func (db *DB) AddTrack(artist, album, title string, date time.Time) {
 
 	if db.NewRec("tracks", "date", date.String()) {
 		db.Create(&track)
-		fmt.Printf("Added New Track: %s / %s - %s\n", artist, album, title)
+		return true
 	}
+	return false
 }
 
 func (db *DB) FindLastListen() (int64, error) {
