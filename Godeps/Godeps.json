@@ -1,6 +1,6 @@
 {
 	"ImportPath": "github.com/gregf/localfm",
-	"GoVersion": "go1.5",
+	"GoVersion": "go1.5.1",
 	"Deps": [
 		{
 			"ImportPath": "github.com/BurntSushi/toml",
@@ -9,7 +9,12 @@
 		},
 		{
 			"ImportPath": "github.com/caarlos0/gohome",
-			"Rev": "8aec3b1765cee785e40c3e9157c2aff62eb3fe6e"
+			"Rev": "01f8a21fd04d51d2478161ad4bb3fbb320f49d67"
+		},
+		{
+			"ImportPath": "github.com/cpuguy83/go-md2man/md2man",
+			"Comment": "v1.0.3-2-g71acacd",
+			"Rev": "71acacd42f85e5e82f70a55327789582a5200a90"
 		},
 		{
 			"ImportPath": "github.com/dustin/go-humanize",
@@ -25,7 +30,7 @@
 		},
 		{
 			"ImportPath": "github.com/jinzhu/gorm",
-			"Rev": "1d5f5f43f37a19d452a920447108de6e9e7b5e96"
+			"Rev": "447885d98f9d07a138733a0e65428dd2de1ed60d"
 		},
 		{
 			"ImportPath": "github.com/kr/pretty",
@@ -34,7 +39,7 @@
 		},
 		{
 			"ImportPath": "github.com/kr/text",
-			"Rev": "e373e137fafd8abd480af49182dea0513914adb4"
+			"Rev": "bb797dc4fb8320488f47bf11de07a733d7233e1f"
 		},
 		{
 			"ImportPath": "github.com/lib/pq/hstore",
@@ -53,8 +58,8 @@
 		},
 		{
 			"ImportPath": "github.com/mattn/go-sqlite3",
-			"Comment": "v1.0.0-4-g3dc190a",
-			"Rev": "3dc190a01779c7f35c9748dd14aba234fcf48a33"
+			"Comment": "v1.0.0-11-g3b3f1d0",
+			"Rev": "3b3f1d01b2696af5501697c35629048c227586ab"
 		},
 		{
 			"ImportPath": "github.com/mitchellh/mapstructure",
@@ -62,11 +67,20 @@
 		},
 		{
 			"ImportPath": "github.com/nsf/termbox-go",
-			"Rev": "347ab0bc907040257edaf8b580f729e12c93ab6b"
+			"Rev": "9914d1c528437633580e9aeda764bfb8c1415a9a"
 		},
 		{
 			"ImportPath": "github.com/qor/inflection",
 			"Rev": "45321e63b98c756df17369c027c1df89298e1288"
+		},
+		{
+			"ImportPath": "github.com/russross/blackfriday",
+			"Comment": "v1.2-80-g8cec3a8",
+			"Rev": "8cec3a854e68dba10faabbe31c089abf4a3e57a6"
+		},
+		{
+			"ImportPath": "github.com/shurcooL/sanitized_anchor_name",
+			"Rev": "244f5ac324cb97e1987ef901a0081a77bfd8e845"
 		},
 		{
 			"ImportPath": "github.com/spf13/cast",
@@ -74,7 +88,7 @@
 		},
 		{
 			"ImportPath": "github.com/spf13/cobra",
-			"Rev": "db0518444643a7b170abb78164bbeaf5a2bb816f"
+			"Rev": "68f5a81a722d56241bd70faf6860ceb05eb27d64"
 		},
 		{
 			"ImportPath": "github.com/spf13/jwalterweatherman",
@@ -82,11 +96,11 @@
 		},
 		{
 			"ImportPath": "github.com/spf13/pflag",
-			"Rev": "112aaa578dfdd0e913663b05153be974bd72497a"
+			"Rev": "8e7dc108ab3a1ab6ce6d922bbaff5657b88e8e49"
 		},
 		{
 			"ImportPath": "github.com/spf13/viper",
-			"Rev": "9fca10189b1307bba68b2cd487dd93da0bfbda06"
+			"Rev": "3c0ff861e3d9906ecc4ebfb7e41557d44d3e277b"
 		},
 		{
 			"ImportPath": "gopkg.in/yaml.v2",
