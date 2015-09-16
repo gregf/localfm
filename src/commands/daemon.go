@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"net/http"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -30,16 +29,9 @@ func (env *Env) Daemon(cmd *cobra.Command, args []string) {
 		firstPage := 1
 
 		for i := lastPage; i >= firstPage; i-- {
-			client := &http.Client{}
 			url := fmt.Sprintf("%s&api_key=%s&user=%s&page=%d&limit=%d&from=%d", baseURL, apiKey, user, i, limit, epoch)
 
-			req, err := http.NewRequest("GET", url, nil)
-			if err != nil {
-				log.Fatal(err)
-			}
-			useragent := fmt.Sprintf("LocalFM %s", localFMVersion)
-			req.Header.Add("User-Agent", useragent)
-			resp, err := client.Do(req)
+			resp, err := FetchBody(url)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -60,10 +52,17 @@ func (env *Env) Daemon(cmd *cobra.Command, args []string) {
 
 			for i := totalItems; i >= 0; i-- {
 				t := l.RecentTracks.Tracks[i]
+				if t.NowPlaying {
+					continue
+				}
 				dt, err := time.Parse("02 Jan 2006, 15:04", t.Date)
 				if err != nil {
-					log.Println("Error parsing time", err)
-					return
+					log.Printf("Error parsing time on %s / %s - %s / %s: %s\n", t.Artist, t.Album, t.Name, t.Date, err)
+					continue
+				}
+				if dt.IsZero() {
+					log.Println("Time is Zero")
+					continue
 				}
 				env.db.AddArtist(t.Artist)
 				env.db.AddTrack(t.Artist, t.Album, t.Name, dt)

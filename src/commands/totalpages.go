@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"net/http"
 )
 
 func TotalPages(baseURL, user, apiKey string, limit int, from int64) (int, error) {
@@ -15,10 +14,10 @@ func TotalPages(baseURL, user, apiKey string, limit int, from int64) (int, error
 	} else {
 		url = fmt.Sprintf("%s&api_key=%s&user=%s&page=1&limit=%d&from=%d", baseURL, apiKey, user, limit, from)
 	}
-	resp, err := http.Get(url)
+
+	resp, err := FetchBody(url)
 	if err != nil {
-		fmt.Println("Error opening file:", err)
-		return 0, err
+		log.Fatal(err)
 	}
 	defer resp.Body.Close()
 
