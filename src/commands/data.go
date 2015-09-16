@@ -23,9 +23,10 @@ type RecentTracks struct {
 }
 
 type Track struct {
-	XMLName xml.Name `xml:"track"`
-	Artist  string   `xml:"artist"`
-	Album   string   `xml:"album"`
-	Name    string   `xml:"name"`
-	Date    string   `xml:"date"`
+	XMLName    xml.Name `xml:"track"`
+	Artist     string   `xml:"artist"`
+	Album      string   `xml:"album"`
+	Name       string   `xml:"name"`
+	Date       string   `xml:"date"`
+	NowPlaying bool     `xml:nowplaying`
 }
