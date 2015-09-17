@@ -189,7 +189,7 @@ func (db *DB) RecentTracks() (s string, err error) {
 			return "", err
 		}
 		d := humanize.Time(t)
-		str = append(str, fmt.Sprintf("%s - %s %s", title, artist, d))
+		str = append(str, fmt.Sprintf("%s - %s %s", artist, title, d))
 	}
 	return strings.Join(str, "\n"), nil
 }
