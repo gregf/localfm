@@ -28,5 +28,5 @@ type Track struct {
 	Album      string   `xml:"album"`
 	Name       string   `xml:"name"`
 	Date       string   `xml:"date"`
-	NowPlaying bool     `xml:nowplaying`
+	NowPlaying bool     `xml:"nowplaying,attr"`
 }
